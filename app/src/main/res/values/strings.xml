@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">EasyCameraX</string>
+    <string name="camera_button">Camera button</string>
 </resources>

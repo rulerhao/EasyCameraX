@@ -1,4 +1,4 @@
-package com.rulhouse.EasyCameraX
+package com.rulhouse.easyCameraX
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

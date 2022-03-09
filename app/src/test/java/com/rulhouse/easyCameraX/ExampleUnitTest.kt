@@ -1,4 +1,4 @@
-package com.rulhouse.EasyCameraX
+package com.rulhouse.easyCameraX
 
 import org.junit.Test
 
