@@ -12,10 +12,14 @@ class MainViewModel @Inject constructor(
 
     private val mainMain = MainMain()
 
+    val picture: MutableLiveData<File> by lazy {
+        MutableLiveData<File>()
+    }
+
     fun onEvent(event: MainEvent) {
         when(event) {
             is MainEvent.OpenCamera -> {
-                mainMain.openCameraActivity(event.activity)
+                mainMain.openCameraActivity(event.activity, event.launcher)
             }
         }
     }

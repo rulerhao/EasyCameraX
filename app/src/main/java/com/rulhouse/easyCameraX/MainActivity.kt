@@ -1,14 +1,15 @@
 package com.rulhouse.easyCameraX
 
-import android.R
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.lifecycle.Observer
 import com.rulhouse.easyCameraX.databinding.MainActivityBinding
+import com.rulhouse.easyCameraX.repository.ResultCodeList
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 
@@ -19,6 +20,8 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
+    lateinit var cameraResultLauncher: ActivityResultLauncher<Intent>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -26,24 +29,27 @@ class MainActivity : ComponentActivity() {
 
         setContentView(viewBinding.root)
 
-        viewBinding.takePictureButton.setOnClickListener {
-            viewModel.onEvent(MainEvent.OpenCamera(this))
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == 50) {
-            @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-            val imageFileDir: File = File(data?.getStringExtra("ImageFile"))
-//            Log.d("testOutput", imageFile.exists().toString())
-            Log.d("testOutput", imageFileDir.absolutePath)
-            if (imageFileDir.exists()) {
-                Log.d("testOutput", imageFileDir.absolutePath)
-                val myBitmap = BitmapFactory.decodeFile(imageFileDir.absolutePath)
+        // Picture Observer
+        val pictureObserver = Observer<File> { value ->
+            if (value.exists()) {
+                val myBitmap = BitmapFactory.decodeFile(value.absolutePath)
                 viewBinding.pictureImageView.setImageBitmap(myBitmap)
             }
+        }
+        viewModel.picture.observe(this, pictureObserver)
+
+        cameraResultLauncher = this.registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == ResultCodeList.TakePicture) {
+                val dir: String = result.data?.extras?.getString("ImageFile")!!
+                viewModel.picture.value = File(dir)
+            }
+        }
+
+        // Take picture button
+        viewBinding.takePictureButton.setOnClickListener {
+            viewModel.onEvent(MainEvent.OpenCamera(this, cameraResultLauncher))
         }
     }
 }

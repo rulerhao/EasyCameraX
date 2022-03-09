@@ -10,5 +10,5 @@ sealed class CameraEvent {
     data class SetZoomRatio(val ratio: Float): CameraEvent()
     data class StartCamera(val activity: ComponentActivity, val viewBinding: CameraxActivityBinding): CameraEvent()
     data class TakePhoto(val activity: ComponentActivity): CameraEvent()
-    data class ReturnPictureFile(val activity: ComponentActivity, val imageFileDir: String): CameraEvent()
+    data class ReturnPictureFile(val activity: ComponentActivity, val imageFileDir: String, val resultCode: Int): CameraEvent()
 }

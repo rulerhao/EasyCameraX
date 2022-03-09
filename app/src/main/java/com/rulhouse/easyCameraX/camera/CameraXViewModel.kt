@@ -42,7 +42,7 @@ class CameraXViewModel @Inject constructor(
                 cameraXMain.takePhoto(event.activity, this)
             }
             is CameraEvent.ReturnPictureFile -> {
-                cameraXMain.returnPictureFile(event.activity, event.imageFileDir)
+                cameraXMain.returnPictureFile(event.activity, event.imageFileDir, event.resultCode)
             }
         }
     }

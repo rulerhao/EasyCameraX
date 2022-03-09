@@ -1,18 +1,14 @@
 package com.rulhouse.easyCameraX.camera
 
-import android.content.ContentValues
 import android.content.Intent
-import android.os.Build
-import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import com.rulhouse.easyCameraX.MainEvent
 import com.rulhouse.easyCameraX.databinding.CameraxActivityBinding
+import com.rulhouse.easyCameraX.repository.ResultCodeList
 import java.io.File
-import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -77,25 +73,16 @@ class CameraXMain {
         // Get a stable reference of the modifiable image capture use case
         val imageCapture = imageCapture ?: return
         // Create time stamped name and MediaStore entry.
-        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
-            .format(System.currentTimeMillis())
+        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis())
         val dir = File(activity.getExternalFilesDir(null).toString() + "/Pictures/")
         if (!dir.exists()) {
             dir.mkdirs()
         }
-
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
-            }
-        }
+        val type = "jpeg"
+        val file = File("${dir.absoluteFile}/$name.$type")
 
         val outputOptions = ImageCapture.OutputFileOptions
-            .Builder(activity.contentResolver,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues)
+            .Builder(file)
             .build()
 
         imageCapture.takePicture(
@@ -110,17 +97,16 @@ class CameraXMain {
                     val msg = "Photo capture succeeded uri: ${output.savedUri}"
                     Log.d(TAG, msg)
 
-                    @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-                    viewModel.pictureDir.value = File(output.savedUri?.path)
+                    viewModel.pictureDir.value = file.absolutePath
                 }
             }
         )
     }
 
-    fun returnPictureFile(activity: ComponentActivity, pictureFileDir: String) {
+    fun returnPictureFile(activity: ComponentActivity, pictureFileDir: String, resultCode: Int) {
         val intent = Intent()
         intent.putExtra("ImageFile", pictureFileDir)
-        activity.setResult(ComponentActivity.RESULT_OK, intent)
+        activity.setResult(resultCode, intent)
         activity.finish()
     }
 }

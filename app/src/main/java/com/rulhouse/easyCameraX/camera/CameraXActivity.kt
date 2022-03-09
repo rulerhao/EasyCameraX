@@ -24,8 +24,12 @@ class CameraXActivity : ComponentActivity() {
 
     private val viewModel: CameraXViewModel by viewModels()
 
+    private var takePictureResultCode: Int? = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        takePictureResultCode = this.intent.extras?.getInt("ResultCode")
 
         viewBinding = CameraxActivityBinding.inflate(layoutInflater)
 
@@ -58,7 +62,9 @@ class CameraXActivity : ComponentActivity() {
 //        viewModel.takePhotoDir.observe(this, takePhotoDirObserver)
 
         val imageFileObserver = Observer<String> { value ->
-            viewModel.onEvent(CameraEvent.ReturnPictureFile(this, value))
+            takePictureResultCode?.let {
+                CameraEvent.ReturnPictureFile(this, value, it)
+            }?.let { viewModel.onEvent(it) }
         }
         viewModel.pictureDir.observe(this, imageFileObserver)
 
